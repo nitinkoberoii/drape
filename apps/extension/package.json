@@ -1,0 +1,25 @@
+{
+  "name": "@drape/extension",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "plasmo build",
+    "dev": "plasmo dev",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "test": "echo 'No tests yet'",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@drape/shared-types": "workspace:*",
+    "@plasmohq/storage": "^1.15.0",
+    "plasmo": "^0.90.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^5.0.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "typescript": "^5.8.3"
+  }
+}

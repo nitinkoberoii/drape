@@ -1,0 +1,7 @@
+node_modules/
+dist/
+build/
+.plasmo/
+coverage/
+pnpm-lock.yaml
+docs/

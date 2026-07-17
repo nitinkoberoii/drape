@@ -1,0 +1,15 @@
+node_modules/
+.pnpm-store/
+dist/
+build/
+.plasmo/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.DS_Store

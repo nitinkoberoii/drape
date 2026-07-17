@@ -1,0 +1,26 @@
+{
+  "name": "@drape/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "test": "echo 'No tests yet'",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@drape/shared-types": "workspace:*",
+    "@fastify/cors": "^11.0.1",
+    "dotenv": "^16.5.0",
+    "fastify": "^5.4.0",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
