@@ -5,9 +5,9 @@ import { getSupportedSite } from '../sites/supportedSites';
 import { useExtensionStore } from '../store/useExtensionStore';
 import type { ThemePreference } from '../types/extension';
 
-async function getActiveTabUrl(): Promise<string | undefined> {
+async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  return tab?.url;
+  return tab;
 }
 
 export function Popup() {
@@ -16,13 +16,13 @@ export function Popup() {
   useEffect(() => {
     async function loadPopup(): Promise<void> {
       try {
-        const [storedSettings, activeTabUrl] = await Promise.all([getSettings(), getActiveTabUrl()]);
+        const [storedSettings, activeTab] = await Promise.all([getSettings(), getActiveTab()]);
         setSettings(storedSettings);
-        if (!activeTabUrl || !getSupportedSite(activeTabUrl)) {
+        if (!activeTab?.url || activeTab.id === undefined || !getSupportedSite(activeTab.url)) {
           setPageState(undefined);
           return;
         }
-        const response = await chrome.runtime.sendMessage({ type: 'drape:get-tab-state' });
+        const response = await chrome.runtime.sendMessage({ type: 'drape:get-tab-state', tabId: activeTab.id });
         setPageState(response.pageState);
       } finally {
         setIsLoading(false);

@@ -31,4 +31,7 @@ function reportPageState(): void {
 document.addEventListener('pause', reportPageState, true);
 document.addEventListener('play', reportPageState, true);
 new MutationObserver(reportPageState).observe(document.documentElement, { childList: true, subtree: true });
+chrome.runtime.onMessage.addListener((message: { type?: string }, _sender, sendResponse) => {
+  if (message.type === 'drape:get-page-state') sendResponse(readPageState());
+});
 reportPageState();

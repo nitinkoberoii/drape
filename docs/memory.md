@@ -71,6 +71,9 @@ the backend and AI service, then presents visually similar retailer products.
 
 - Phase 1 implemented and verified: extension typecheck and Chrome MV3
   production build pass.
+- Corrected popup-to-background state retrieval: the popup now sends its active
+  tab ID, and the background worker queries the content script when no cached
+  state is available.
 
 ## Documentation Status
 

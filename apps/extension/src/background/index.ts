@@ -10,8 +10,20 @@ chrome.runtime.onMessage.addListener(
     }
 
     if (message.type === 'drape:get-tab-state') {
-      const tabId = message.tabId ?? sender.tab?.id;
-      sendResponse({ pageState: tabId === undefined ? undefined : pageStates.get(tabId) });
+      const cachedPageState = pageStates.get(message.tabId);
+      if (cachedPageState) {
+        sendResponse({ pageState: cachedPageState });
+        return;
+      }
+
+      void chrome.tabs
+        .sendMessage(message.tabId, { type: 'drape:get-page-state' })
+        .then((pageState: PageState | undefined) => {
+          if (pageState) pageStates.set(message.tabId, pageState);
+          sendResponse({ pageState });
+        })
+        .catch(() => sendResponse({}));
+      return true;
     }
   },
 );

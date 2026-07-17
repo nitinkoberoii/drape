@@ -16,7 +16,8 @@ export interface ExtensionSettings {
 
 export type ExtensionMessage =
   | { type: 'drape:page-state-updated'; pageState: PageState }
-  | { type: 'drape:get-tab-state'; tabId?: number };
+  | { type: 'drape:get-tab-state'; tabId: number }
+  | { type: 'drape:get-page-state' };
 
 export interface TabStateResponse {
   pageState?: PageState;
