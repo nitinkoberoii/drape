@@ -2,6 +2,21 @@
   "name": "@drape/extension",
   "version": "0.1.0",
   "private": true,
+  "manifest": {
+    "name": "Drape",
+    "permissions": [
+      "storage",
+      "tabs"
+    ],
+    "host_permissions": [
+      "*://*.youtube.com/*",
+      "*://youtu.be/*",
+      "*://*.netflix.com/*",
+      "*://*.primevideo.com/*",
+      "*://*.instagram.com/*",
+      "*://*.tiktok.com/*"
+    ]
+  },
   "scripts": {
     "build": "plasmo build",
     "dev": "plasmo dev",
@@ -18,6 +33,7 @@
     "zustand": "^5.0.5"
   },
   "devDependencies": {
+    "@types/chrome": "^0.2.2",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "typescript": "^5.8.3"

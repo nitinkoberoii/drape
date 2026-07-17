@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-07-15
+Last updated: 2026-07-18
 
 ## Project Overview
 
@@ -12,8 +12,9 @@ the backend and AI service, then presents visually similar retailer products.
 
 - Overall progress: In Development
 - Phase 0 completion: complete (verified 2026-07-15)
-- Current phase: Phase 0 — Project Setup
-- Current task: Ready to begin Phase 1 — Browser Extension Foundation.
+- Phase 1 completion: complete (verified 2026-07-18)
+- Current phase: Phase 2 — Video Capture
+- Current task: Ready to begin Phase 2 — Video Capture.
 - Current branch: Not recorded
 
 ## Completed Work
@@ -24,8 +25,12 @@ the backend and AI service, then presents visually similar retailer products.
 - TypeScript package scaffolds created with strict compiler settings.
 - Fastify backend scaffold created with an `/api/v1/health` endpoint and
   environment validation.
-- Plasmo/React extension scaffold created with popup, content, background,
-  service, and Zustand store entry points.
+- Plasmo/React extension foundation completed: a styled popup, typed content-to-
+  background messaging, supported-site detection, and persisted settings.
+- The extension is restricted to an explicit allowlist: YouTube, Netflix,
+  Prime Video, Instagram, and TikTok.
+- The content script detects video elements and pause/play state; the popup
+  reports the active supported site's readiness without capturing frames.
 - FastAPI AI-service scaffold created with a health endpoint and pytest check.
 - Docker Compose configured for PostgreSQL, Redis, and Qdrant.
 - Prettier configuration, environment examples, `.gitignore`, CI workflow, and
@@ -37,21 +42,21 @@ the backend and AI service, then presents visually similar retailer products.
 
 ## Next Tasks
 
-1. Begin Phase 1: browser-extension foundation.
-2. Implement supported-site detection and extension messaging.
-3. Update documentation and tests as Phase 1 progresses.
+1. Begin Phase 2: video capture.
+2. Decide how DRM-protected sites should be handled when frame capture is not
+   technically available.
+3. Add unit tests for the supported-site and page-state logic alongside Phase 2.
 
 ## Pending Decisions
 
 - Confirm production hosting and secret-management approach.
 - Confirm the approved product-feed and affiliate data sources before Phase 5.
-- Confirm supported video sites and their permitted integration approach before
-  Phase 1 implementation.
+- Confirm each supported platform's permitted integration approach before
+  enabling site-specific capture behavior.
 
 ## Known Issues
 
-- No product functionality beyond health endpoints and extension scaffolding is
-  implemented yet.
+- No frame capture or product functionality is implemented yet.
 - Docker services require a local `.env` with a non-default database password.
 
 ## Important Files
@@ -64,10 +69,8 @@ the backend and AI service, then presents visually similar retailer products.
 
 ## Recent Changes
 
-- Established the Phase 0 repository structure and developer tooling based on
-  `docs/architecture.md`.
-- Phase 0 verification completed successfully: formatting, linting, type
-  checking, JavaScript tests, Python health test, and production builds pass.
+- Phase 1 implemented and verified: extension typecheck and Chrome MV3
+  production build pass.
 
 ## Documentation Status
 
@@ -75,7 +78,7 @@ the backend and AI service, then presents visually similar retailer products.
 - Architecture: up to date
 - Rules: up to date
 - Phases: up to date
-- Memory: updated for Phase 0
+- Memory: updated for Phase 1
 - API documentation: pending (Phase 3)
 - Database schema: pending (Phase 3)
 - AI pipeline documentation: pending (Phase 4)
