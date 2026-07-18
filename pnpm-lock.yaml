@@ -26,6 +26,9 @@ importers:
       fastify:
         specifier: ^5.4.0
         version: 5.10.0
+      jose:
+        specifier: 6.1.0
+        version: 6.1.0
       zod:
         specifier: ^3.24.4
         version: 3.25.76
@@ -2698,6 +2701,9 @@ packages:
 
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
+
+  jose@6.1.0:
+    resolution: {integrity: sha512-TTQJyoEoKcC1lscpVDCSsVgYzUDg/0Bt3WE//WiTPK6uOCQC2KZS4MpugbMWt/zyjkopgZoXhZuCi00gLudfUA==}
 
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
@@ -6507,6 +6513,8 @@ snapshots:
   isbinaryfile@4.0.10: {}
 
   isexe@2.0.0: {}
+
+  jose@6.1.0: {}
 
   joycon@3.1.1: {}
 

@@ -9,6 +9,7 @@
       "tabs"
     ],
     "host_permissions": [
+      "http://localhost:3001/*",
       "*://*.youtube.com/*",
       "*://youtu.be/*",
       "*://*.netflix.com/*",
