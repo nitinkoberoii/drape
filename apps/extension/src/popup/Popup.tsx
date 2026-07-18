@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { getSettings, saveSettings } from '../services/settings';
 import { getSupportedSite } from '../sites/supportedSites';
 import { useExtensionStore } from '../store/useExtensionStore';
-import type { ThemePreference } from '../types/extension';
+import type { FrameCaptureResponse, ThemePreference } from '../types/extension';
 
 async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -11,7 +11,7 @@ async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
 }
 
 export function Popup() {
-  const { isLoading, pageState, settings, setIsLoading, setPageState, setSettings } = useExtensionStore();
+  const { capture, isLoading, pageState, settings, setCapture, setIsLoading, setPageState, setSettings } = useExtensionStore();
 
   useEffect(() => {
     async function loadPopup(): Promise<void> {
@@ -43,9 +43,23 @@ export function Popup() {
     await saveSettings(updatedSettings);
   }
 
+  async function captureFrame(): Promise<void> {
+    const activeTab = await getActiveTab();
+    if (activeTab?.id === undefined) return;
+
+    setCapture(undefined);
+    try {
+      const response = (await chrome.runtime.sendMessage({ type: 'drape:capture-frame', tabId: activeTab.id })) as FrameCaptureResponse;
+      setCapture(response.capture);
+    } catch {
+      setCapture({ success: false, code: 'capture-unavailable', message: 'Drape could not start frame capture. Please try again.' });
+    }
+  }
+
   const supportedSite = pageState ? getSupportedSite(pageState.url) : undefined;
   const videoCount = pageState?.videoCount ?? 0;
   const hasPausedVideo = pageState?.hasPausedVideo ?? false;
+  const canCapture = settings.enabled && Boolean(supportedSite) && hasPausedVideo;
   const status = isLoading
     ? 'Checking this page…'
     : !settings.enabled
@@ -75,6 +89,18 @@ export function Popup() {
         <strong>{supportedSite?.label ?? 'Video site detection'}</strong>
         <p>{status}</p>
       </section>
+
+      <button className="capture-button" disabled={!canCapture} onClick={() => void captureFrame()} type="button">
+        Capture frame
+      </button>
+
+      {capture?.success ? (
+        <section className="capture-preview">
+          <strong>Captured frame</strong>
+          <img alt="Captured video frame" src={capture.dataUrl} />
+        </section>
+      ) : null}
+      {capture && !capture.success ? <p className="capture-error" role="alert">{capture.message}</p> : null}
 
       <label className="setting-label" htmlFor="theme-preference">Appearance</label>
       <select id="theme-preference" onChange={(event) => void updateTheme(event.target.value as ThemePreference)} value={settings.theme}>

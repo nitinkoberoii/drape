@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-07-18
+Last updated: 2026-07-19
 
 ## Project Overview
 
@@ -13,9 +13,10 @@ the backend and AI service, then presents visually similar retailer products.
 - Overall progress: In Development
 - Phase 0 completion: complete (verified 2026-07-15)
 - Phase 1 completion: complete (verified 2026-07-18)
-- Current phase: Phase 2 — Video Capture
-- Current task: Ready to begin Phase 2 — Video Capture.
-- Current branch: Not recorded
+- Phase 2 completion: complete (verified 2026-07-19)
+- Current phase: Phase 3 — Backend Foundation
+- Current task: Phase 2 verified; ready to begin Phase 3.
+- Current branch: main
 
 ## Completed Work
 
@@ -31,6 +32,9 @@ the backend and AI service, then presents visually similar retailer products.
   Prime Video, Instagram, and TikTok.
 - The content script detects video elements and pause/play state; the popup
   reports the active supported site's readiness without capturing frames.
+- Phase 2 now captures the largest visible paused frame through a local canvas,
+  previews it in the popup, and reports unavailable or protected media clearly.
+- Vitest unit coverage validates paused-video selection.
 - FastAPI AI-service scaffold created with a health endpoint and pytest check.
 - Docker Compose configured for PostgreSQL, Redis, and Qdrant.
 - Prettier configuration, environment examples, `.gitignore`, CI workflow, and
@@ -74,6 +78,10 @@ the backend and AI service, then presents visually similar retailer products.
 - Corrected popup-to-background state retrieval: the popup now sends its active
   tab ID, and the background worker queries the content script when no cached
   state is available.
+- Decision: native canvas capture was selected over a capture library because
+  it is standard browser functionality, adds no runtime dependency, and needs
+  no new permissions. Tab or screen capture is a future alternative only for a
+  user-initiated, permissioned workflow; it is not a silent DRM fallback.
 
 ## Documentation Status
 

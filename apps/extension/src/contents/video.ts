@@ -1,5 +1,6 @@
 import type { PlasmoCSConfig } from 'plasmo';
 
+import { capturePausedVideoFrame } from '../services/frameCapture';
 import { getSupportedSite } from '../sites/supportedSites';
 import type { PageState } from '../types/extension';
 
@@ -32,6 +33,13 @@ document.addEventListener('pause', reportPageState, true);
 document.addEventListener('play', reportPageState, true);
 new MutationObserver(reportPageState).observe(document.documentElement, { childList: true, subtree: true });
 chrome.runtime.onMessage.addListener((message: { type?: string }, _sender, sendResponse) => {
-  if (message.type === 'drape:get-page-state') sendResponse(readPageState());
+  if (message.type === 'drape:get-page-state') {
+    sendResponse(readPageState());
+    return;
+  }
+
+  if (message.type === 'drape:capture-frame') {
+    sendResponse(capturePausedVideoFrame(Array.from(document.querySelectorAll('video'))));
+  }
 });
 reportPageState();
