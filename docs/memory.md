@@ -14,7 +14,7 @@ Drape is an AI-powered browser extension for discovering clothing and accessorie
 - Phase 2 completion: complete (verified 2026-07-19)
 - Phase 3 completion: complete (verified 2026-07-19)
 - Current phase: Phase 4 — AI Processing
-- Current task: Define the AI service frame-analysis contract.
+- Current task: Awaiting authorization to begin Phase 4.
 - Current branch: main
 
 ## Completed Work
@@ -34,13 +34,12 @@ Drape is an AI-powered browser extension for discovering clothing and accessorie
 
 ## In Progress
 
-- Configure a Supabase project before testing authenticated frame submissions end-to-end.
+- None. Phase 3 is verified complete.
 
 ## Next Tasks
 
-1. Configure Supabase credentials for local and deployed backend environments.
-2. Begin Phase 4: define the AI service frame-analysis contract.
-3. Add an authenticated extension submission flow after Supabase sign-in is introduced in Phase 7, or define a separately approved anonymous workflow.
+1. Begin Phase 4 only when authorized: define the AI service frame-analysis contract.
+2. Add an authenticated extension submission flow after Supabase sign-in is introduced in Phase 7, or define a separately approved anonymous workflow.
 
 ## Pending Decisions
 
@@ -51,7 +50,7 @@ Drape is an AI-powered browser extension for discovering clothing and accessorie
 ## Known Issues
 
 - Docker services require a local `.env` with a non-default database password.
-- Protected backend routes return `AUTH_NOT_CONFIGURED` until `SUPABASE_URL` is set.
+- Authenticated frame submission is not yet verified with a real Supabase user token; user sign-in UI is planned for Phase 7.
 
 ## Important Files
 
@@ -64,7 +63,8 @@ Drape is an AI-powered browser extension for discovering clothing and accessorie
 
 ## Recent Changes
 
-- Phase 3 implemented and verified: backend unit tests and backend/extension typechecks pass.
+- Phase 3 verified: the extension popup successfully displayed `Backend: connected` against the local backend.
+- Fixed extension configuration loading: Plasmo requires a statically referenced `PLASMO_PUBLIC_API_BASE_URL`; dynamic `globalThis.process` access left the popup in `not configured` state.
 - Decision: Supabase JWTs are verified through JWKS using `jose`, rather than a static extension API key or a custom JWT implementation. See `docs/decisions.md` for trade-offs.
 
 ## Documentation Status
@@ -73,11 +73,11 @@ Drape is an AI-powered browser extension for discovering clothing and accessorie
 - Architecture: up to date
 - Rules: up to date
 - Phases: up to date
-- Memory: updated for Phase 3
+- Memory: updated for Phase 3 verification status
 - API documentation: complete (Phase 3)
 - Database schema: deferred until persistence requirements are defined
 - AI pipeline documentation: pending (Phase 4)
 
 ## Notes for the Next AI Assistant
 
-Use pnpm for all JavaScript workspace commands. Do not add live retailer, affiliate, browser-site, or model integrations until their requirements are confirmed. Phase 3 is complete; begin Phase 4 by defining a concrete AI analysis response contract before wiring the frame endpoint to the AI service.
+Use pnpm for all JavaScript workspace commands. Do not add live retailer, affiliate, browser-site, or model integrations until their requirements are confirmed. Phase 3 is complete; do not begin Phase 4 unless the user explicitly authorizes it.
