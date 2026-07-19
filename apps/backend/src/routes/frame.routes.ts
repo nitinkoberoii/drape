@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { ApiError } from '../errors/api-error.js';
 import { authenticate } from '../plugins/authentication.js';
+import { analyzeFrame, type DetectedClothingItem } from '../services/ai-client.js';
 
 const frameSubmissionSchema = z
   .object({
@@ -16,23 +17,22 @@ const frameSubmissionSchema = z
   })
   .strict();
 
-interface FrameReceipt {
+interface FrameAnalysis {
   requestId: string;
-  status: 'received';
+  status: 'analyzed';
+  items: DetectedClothingItem[];
 }
 
-/** Accepts a validated frame contract; AI processing and persistence begin in Phase 4. */
+/** Validates a captured frame and returns its detected, segmented clothing items. */
 export const frameRoutes: FastifyPluginAsync = async (app) => {
-  app.post('/frames', async (request, reply): Promise<ApiResponse<FrameReceipt>> => {
+  app.post('/frames', async (request, reply): Promise<ApiResponse<FrameAnalysis>> => {
     await authenticate(request);
     const parsed = frameSubmissionSchema.safeParse(request.body);
     if (!parsed.success)
       throw new ApiError(400, 'VALIDATION_ERROR', 'The frame submission is invalid.');
 
-    request.log.info(
-      { requestId: request.id, sourceHost: new URL(parsed.data.sourceUrl).host },
-      'Frame received',
-    );
-    return reply.code(202).send({ data: { requestId: request.id, status: 'received' } });
+    const items = await analyzeFrame(parsed.data);
+    request.log.info({ requestId: request.id, itemCount: items.length }, 'Frame analyzed');
+    return reply.code(200).send({ data: { requestId: request.id, status: 'analyzed', items } });
   });
 };

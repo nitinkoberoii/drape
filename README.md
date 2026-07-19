@@ -156,6 +156,8 @@ pnpm dev
 apps/ai-service/.venv/bin/python apps/ai-service/main.py
 ```
 
+The first frame-analysis request downloads the configured public Grounding DINO and SAM 2 weights from Hugging Face into the local model cache. No account is required for the default public checkpoints. A CUDA-capable machine is optional; CPU inference works but is slower.
+
 On a standard Windows Python installation, virtual-environment executables are
 under `Scripts` rather than `bin`. The backend health check is available at
 `http://localhost:3001/api/v1/health`; the AI-service health check is at
