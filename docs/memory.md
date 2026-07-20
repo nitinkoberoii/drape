@@ -15,7 +15,7 @@ Drape is an AI-powered browser extension for discovering clothing and accessorie
 - Phase 3 completion: complete (verified 2026-07-19)
 - Phase 4 completion: implementation complete; AI-service live inference verified
 - Current phase: Phase 4 — AI Processing
-- Current task: Verify multi-item detection on a clothing frame and perform an authenticated backend end-to-end check when a Supabase test token is available.
+- Current task: Re-evaluate garment-detection recall with the fashion-oriented prompt taxonomy, then perform an authenticated backend end-to-end check when a Supabase test token is available.
 - Current branch: main
 
 ## Completed Work
@@ -38,13 +38,14 @@ Drape is an AI-powered browser extension for discovering clothing and accessorie
 
 ## In Progress
 
-- Phase 4 AI-service inference is verified. Remaining verification is a real multi-garment frame and the protected backend route with a Supabase test token.
+- Phase 4 AI-service inference is verified. Confidence-threshold evaluation is in progress; remaining verification also includes the protected backend route with a Supabase test token.
 
 ## Next Tasks
 
-1. Send a clear clothing frame with multiple visible items to `POST /analyze` and inspect each returned RLE mask.
-2. When a Supabase test token is available, submit that frame to `POST /api/v1/frames` to verify the backend-to-AI-service path.
-3. Add an authenticated extension submission flow after Supabase sign-in is introduced in Phase 7, or define a separately approved anonymous workflow.
+1. Evaluate the same labelled clothing frames at detection thresholds `0.3`, `0.4`, and `0.5`, with text threshold held at `0.25`; record misses and false positives.
+2. Choose a default only after comparing recall and precision across that set, then inspect the RLE mask for each returned item.
+3. When a Supabase test token is available, submit that frame to `POST /api/v1/frames` to verify the backend-to-AI-service path.
+4. Add an authenticated extension submission flow after Supabase sign-in is introduced in Phase 7, or define a separately approved anonymous workflow.
 
 ## Pending Decisions
 
@@ -71,6 +72,9 @@ Drape is an AI-powered browser extension for discovering clothing and accessorie
 
 - Phase 4 live inference verified: Grounding DINO and SAM 2 were downloaded and initialized successfully; a request returned a `glasses` item with confidence `0.5229`, bounding box, and RLE mask.
 - Fixed Phase 4 runtime compatibility: upgraded Transformers from `4.53.2` to `4.57.3` for SAM 2 support and added Torchvision `0.22.1`, matched to Torch `2.7.1`.
+- Added controlled confidence-threshold evaluation: `/analyze` now accepts validated per-request detection and text overrides and returns the effective thresholds.
+- Added a fashion-oriented prompt taxonomy: specific garment prompts now map to canonical Drape categories before results are returned.
+- Added class-aware duplicate suppression: overlapping canonical-category boxes retain only the highest-confidence result before segmentation.
 - Phase 4 implemented: the backend forwards validated frames to the stateless AI service, which preprocesses frames, detects multiple clothing items, produces SAM 2 masks, and returns confidence scores.
 - Phase 3 verified: the extension popup successfully displayed `Backend: connected` against the local backend.
 - Fixed extension configuration loading: Plasmo requires a statically referenced `PLASMO_PUBLIC_API_BASE_URL`; dynamic `globalThis.process` access left the popup in `not configured` state.

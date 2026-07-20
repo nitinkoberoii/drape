@@ -25,11 +25,18 @@ class ClothingItem(BaseModel):
     mask: SegmentationMask
 
 
+class AnalysisThresholds(BaseModel):
+    detection: confloat(ge=0, le=1)
+    text: confloat(ge=0, le=1)
+
+
 class AnalysisRequest(BaseModel):
     image_data_url: str = Field(..., max_length=8_000_000)
     source_url: HttpUrl
+    detection_threshold: confloat(ge=0, le=1) | None = None
+    text_threshold: confloat(ge=0, le=1) | None = None
 
 
 class AnalysisResponse(BaseModel):
     items: list[ClothingItem]
-
+    thresholds: AnalysisThresholds

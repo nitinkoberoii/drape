@@ -6,7 +6,8 @@ from fastapi import HTTPException
 from PIL import Image
 
 from app.config import settings
-from app.schemas import BoundingBox, ClothingItem, SegmentationMask
+from app.fashion_taxonomy import canonicalize_detection_label, detector_prompts
+from app.schemas import AnalysisThresholds, BoundingBox, ClothingItem, SegmentationMask
 
 logger = logging.getLogger(__name__)
 
@@ -30,26 +31,34 @@ class FashionInference:
         self.segmenter_processor = Sam2Processor.from_pretrained(settings.segmenter_model_id)
         self.segmenter_model = Sam2Model.from_pretrained(settings.segmenter_model_id).to(self.device)
 
-    def analyze(self, image: Image.Image) -> list[ClothingItem]:
-        detections = self._detect(image)
+    def analyze(
+        self, image: Image.Image, thresholds: AnalysisThresholds
+    ) -> list[ClothingItem]:
+        detections = self._detect(image, thresholds)
         return [self._segment(image, detection) for detection in detections]
 
-    def _detect(self, image: Image.Image) -> list[dict[str, Any]]:
-        labels = [[f"a {label}" for label in settings.clothing_labels]]
+    def _detect(
+        self, image: Image.Image, thresholds: AnalysisThresholds
+    ) -> list[dict[str, Any]]:
+        labels = [detector_prompts()]
         inputs = self.detector_processor(images=image, text=labels, return_tensors="pt").to(self.device)
         with self.torch.inference_mode():
             outputs = self.detector_model(**inputs)
         results = self.detector_processor.post_process_grounded_object_detection(
             outputs,
             inputs.input_ids,
-            threshold=settings.confidence_threshold,
-            text_threshold=settings.confidence_threshold,
+            threshold=thresholds.detection,
+            text_threshold=thresholds.text,
             target_sizes=[image.size[::-1]],
         )[0]
-        return [
-            {"label": label.removeprefix("a "), "score": float(score), "box": box}
-            for label, score, box in zip(results["labels"], results["scores"], results["boxes"], strict=True)
-        ]
+        detections: list[dict[str, Any]] = []
+        for label, score, box in zip(results["labels"], results["scores"], results["boxes"], strict=True):
+            category = canonicalize_detection_label(label)
+            if category is None:
+                logger.warning("Discarding detection with an unmapped fashion label: %s", label)
+                continue
+            detections.append({"label": category, "score": float(score), "box": box})
+        return suppress_duplicate_detections(detections, settings.duplicate_iou_threshold)
 
     def _segment(self, image: Image.Image, detection: dict[str, Any]) -> ClothingItem:
         box = detection["box"].tolist()
@@ -86,6 +95,36 @@ def _encode_mask(mask: Any) -> list[int]:
             length = 1
     counts.append(length)
     return counts
+
+
+def suppress_duplicate_detections(
+    detections: list[dict[str, Any]], duplicate_iou_threshold: float
+) -> list[dict[str, Any]]:
+    """Keep the strongest overlapping box for each canonical fashion category."""
+    kept: list[dict[str, Any]] = []
+    for detection in sorted(detections, key=lambda item: item["score"], reverse=True):
+        box = detection["box"].tolist()
+        duplicate = any(
+            detection["label"] == existing["label"]
+            and _intersection_over_union(box, existing["box"].tolist()) >= duplicate_iou_threshold
+            for existing in kept
+        )
+        if not duplicate:
+            kept.append(detection)
+    return kept
+
+
+def _intersection_over_union(first: list[float], second: list[float]) -> float:
+    first_left, first_top, first_right, first_bottom = first
+    second_left, second_top, second_right, second_bottom = second
+    intersection_width = max(0, min(first_right, second_right) - max(first_left, second_left))
+    intersection_height = max(0, min(first_bottom, second_bottom) - max(first_top, second_top))
+    intersection = intersection_width * intersection_height
+    if intersection == 0:
+        return 0
+    first_area = (first_right - first_left) * (first_bottom - first_top)
+    second_area = (second_right - second_left) * (second_bottom - second_top)
+    return intersection / (first_area + second_area - intersection)
 
 
 @lru_cache(maxsize=1)

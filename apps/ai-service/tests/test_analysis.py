@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from PIL import Image
 
 import app.main as main_module
-from app.schemas import BoundingBox, ClothingItem, SegmentationMask
+from app.schemas import AnalysisThresholds, BoundingBox, ClothingItem, SegmentationMask
 
 
 def _image_data_url() -> str:
@@ -16,8 +16,9 @@ def _image_data_url() -> str:
 
 
 class FakeInference:
-    def analyze(self, image: Image.Image) -> list[ClothingItem]:
+    def analyze(self, image: Image.Image, thresholds: AnalysisThresholds) -> list[ClothingItem]:
         assert image.size == (8, 4)
+        assert thresholds == AnalysisThresholds(detection=0.3, text=0.25)
         return [
             ClothingItem(
                 label="jacket",
@@ -40,7 +41,12 @@ def test_analysis_returns_multiple_segmented_items(monkeypatch) -> None:
 
     response = client.post(
         "/analyze",
-        json={"image_data_url": _image_data_url(), "source_url": "https://www.youtube.com/watch?v=test"},
+        json={
+            "image_data_url": _image_data_url(),
+            "source_url": "https://www.youtube.com/watch?v=test",
+            "detection_threshold": 0.3,
+            "text_threshold": 0.25,
+        },
     )
 
     assert response.status_code == 200
@@ -58,7 +64,8 @@ def test_analysis_returns_multiple_segmented_items(monkeypatch) -> None:
                 "bounding_box": {"left": 5, "top": 1, "width": 2, "height": 2},
                 "mask": {"encoding": "rle", "size": [4, 8], "counts": [13, 2, 17]},
             },
-        ]
+        ],
+        "thresholds": {"detection": 0.3, "text": 0.25},
     }
 
 
