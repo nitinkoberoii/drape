@@ -1,6 +1,6 @@
 # Project Memory
 
-Last updated: 2026-07-20
+Last updated: 2026-07-22
 
 ## Project Overview
 
@@ -13,9 +13,9 @@ Drape is an AI-powered browser extension for discovering clothing and accessorie
 - Phase 1 completion: complete (verified 2026-07-18)
 - Phase 2 completion: complete (verified 2026-07-19)
 - Phase 3 completion: complete (verified 2026-07-19)
-- Phase 4 completion: implementation complete; AI-service live inference verified
+- Phase 4 completion: AI service verified; protected backend end-to-end verification pending
 - Current phase: Phase 4 — AI Processing
-- Current task: Re-evaluate garment-detection recall with the fashion-oriented prompt taxonomy, then perform an authenticated backend end-to-end check when a Supabase test token is available.
+- Current task: Perform an authenticated backend end-to-end frame-analysis check with a Supabase test token.
 - Current branch: main
 
 ## Completed Work
@@ -34,17 +34,18 @@ Drape is an AI-powered browser extension for discovering clothing and accessorie
 - Phase 4 AI processing is implemented: image normalization, configurable open-vocabulary clothing detection, per-item segmentation, confidence scores, and a backend-to-AI-service contract.
 - The pinned AI runtime was installed locally. A live `POST /analyze` request successfully returned a segmented `glasses` detection with confidence `0.5229`, a bounding box, and an RLE mask.
 - Grounding DINO weights are cached locally after their initial download. No submitted frame or result is persisted by the AI service or backend in Phase 4.
+- The person-first Grounding DINO + SAM 2 pipeline was live-tested on local clothing images, including visual PNG overlays and transparent masked garment crops. The user confirmed the debug visual output is working as expected.
 - The extension checks and displays backend health when `PLASMO_PUBLIC_API_BASE_URL` is configured.
 
 ## In Progress
 
-- Phase 4 AI-service inference is verified. Confidence-threshold evaluation is in progress; remaining verification also includes the protected backend route with a Supabase test token.
+- Phase 4 AI-service inference, person grouping, segmentation masks, and opt-in visual outputs are verified. The sole exit-criterion check remaining is the protected backend route with a Supabase test token.
 
 ## Next Tasks
 
-1. Evaluate the same labelled clothing frames at detection thresholds `0.3`, `0.4`, and `0.5`, with text threshold held at `0.25`; record misses and false positives.
-2. Choose a default only after comparing recall and precision across that set, then inspect the RLE mask for each returned item.
-3. When a Supabase test token is available, submit that frame to `POST /api/v1/frames` to verify the backend-to-AI-service path.
+1. Obtain a Supabase test-user access token and submit a validated frame to `POST /api/v1/frames` while both backend and AI service are running.
+2. Verify the backend returns the analyzed clothing items, confidence scores, boxes, and masks, then mark Phase 4 complete.
+3. Begin Phase 5 only after that verification; confirm approved product-feed and affiliate data sources before implementing any retailer integration.
 4. Add an authenticated extension submission flow after Supabase sign-in is introduced in Phase 7, or define a separately approved anonymous workflow.
 
 ## Pending Decisions
@@ -58,6 +59,7 @@ Drape is an AI-powered browser extension for discovering clothing and accessorie
 - Docker services require a local `.env` with a non-default database password.
 - Authenticated frame submission is not yet verified with a real Supabase user token; user sign-in UI is planned for Phase 7.
 - Phase 4 currently retains no captured frames, masks, or analysis results; persistence requires an approved storage and retention design.
+- WebP input remains unsupported; the AI-service frame contract accepts JPEG and PNG data URLs only.
 
 ## Important Files
 
@@ -75,6 +77,9 @@ Drape is an AI-powered browser extension for discovering clothing and accessorie
 - Added controlled confidence-threshold evaluation: `/analyze` now accepts validated per-request detection and text overrides and returns the effective thresholds.
 - Added a fashion-oriented prompt taxonomy: specific garment prompts now map to canonical Drape categories before results are returned.
 - Added class-aware duplicate suppression: overlapping canonical-category boxes retain only the highest-confidence result before segmentation.
+- Added person-first inference: the AI service detects people, performs fashion detection within each padded person crop, and returns a grouped outfit set per person while preserving the legacy flattened items list.
+- Added opt-in segmentation visuals for local evaluation: per-person mask overlays and transparent masked garment crops are returned as PNG data URLs only when requested.
+- Verified person-first AI processing visually on local clothing images: each person can return an independent outfit set, and SAM 2 debug overlays/crops are available for manual review.
 - Phase 4 implemented: the backend forwards validated frames to the stateless AI service, which preprocesses frames, detects multiple clothing items, produces SAM 2 masks, and returns confidence scores.
 - Phase 3 verified: the extension popup successfully displayed `Backend: connected` against the local backend.
 - Fixed extension configuration loading: Plasmo requires a statically referenced `PLASMO_PUBLIC_API_BASE_URL`; dynamic `globalThis.process` access left the popup in `not configured` state.
@@ -86,11 +91,11 @@ Drape is an AI-powered browser extension for discovering clothing and accessorie
 - Architecture: up to date
 - Rules: up to date
 - Phases: up to date
-- Memory: updated for Phase 4 live inference verification status
+- Memory: updated for Phase 4 AI-service verification status
 - API documentation: complete (Phase 4)
 - Database schema: deferred until persistence requirements are defined
-- AI pipeline documentation: complete (Phase 4); live AI-service inference verified
+- AI pipeline documentation: complete (Phase 4); AI-service and visual-debug inference verified
 
 ## Notes for the Next AI Assistant
 
-Use pnpm for all JavaScript workspace commands. Do not add live retailer, affiliate, or browser-site integrations until their requirements are confirmed. Phase 4's AI-service inference is verified; complete the remaining multi-item and authenticated backend checks before marking the phase fully verified.
+Use pnpm for all JavaScript workspace commands. Do not add live retailer, affiliate, or browser-site integrations until their requirements are confirmed. Phase 4's AI-service path is verified, but do not start Phase 5 or mark Phase 4 complete until `/api/v1/frames` has returned real analyzed items using a Supabase test token.

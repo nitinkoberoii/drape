@@ -18,11 +18,29 @@ class SegmentationMask(BaseModel):
     counts: list[conint(gt=0)]
 
 
+class ItemDebugVisuals(BaseModel):
+    masked_crop_png_data_url: str
+
+
 class ClothingItem(BaseModel):
     label: str
     confidence: confloat(ge=0, le=1)
     bounding_box: BoundingBox
     mask: SegmentationMask
+    debug_visuals: ItemDebugVisuals | None = None
+
+
+class PersonDebugVisuals(BaseModel):
+    overlay_png_data_url: str
+
+
+class PersonOutfit(BaseModel):
+    id: str
+    confidence: confloat(ge=0, le=1)
+    bounding_box: BoundingBox
+    items: list[ClothingItem]
+    debug_visuals: PersonDebugVisuals | None = None
+    debug_visuals_truncated: bool | None = None
 
 
 class AnalysisThresholds(BaseModel):
@@ -35,8 +53,10 @@ class AnalysisRequest(BaseModel):
     source_url: HttpUrl
     detection_threshold: confloat(ge=0, le=1) | None = None
     text_threshold: confloat(ge=0, le=1) | None = None
+    include_debug_visuals: bool = False
 
 
 class AnalysisResponse(BaseModel):
     items: list[ClothingItem]
+    people: list[PersonOutfit]
     thresholds: AnalysisThresholds

@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from PIL import Image
 
 import app.main as main_module
-from app.schemas import AnalysisThresholds, BoundingBox, ClothingItem, SegmentationMask
+from app.schemas import AnalysisThresholds, BoundingBox, ClothingItem, PersonOutfit, SegmentationMask
 
 
 def _image_data_url() -> str:
@@ -16,10 +16,17 @@ def _image_data_url() -> str:
 
 
 class FakeInference:
-    def analyze(self, image: Image.Image, thresholds: AnalysisThresholds) -> list[ClothingItem]:
+    def analyze(
+        self, image: Image.Image, thresholds: AnalysisThresholds, include_debug_visuals: bool = False
+    ) -> list[PersonOutfit]:
         assert image.size == (8, 4)
         assert thresholds == AnalysisThresholds(detection=0.3, text=0.25)
-        return [
+        assert not include_debug_visuals
+        return [PersonOutfit(
+            id="person_1",
+            confidence=0.97,
+            bounding_box=BoundingBox(left=0, top=0, width=8, height=4),
+            items=[
             ClothingItem(
                 label="jacket",
                 confidence=0.91,
@@ -32,7 +39,8 @@ class FakeInference:
                 bounding_box=BoundingBox(left=5, top=1, width=2, height=2),
                 mask=SegmentationMask(size=(4, 8), counts=[13, 2, 17]),
             ),
-        ]
+            ],
+        )]
 
 
 def test_analysis_returns_multiple_segmented_items(monkeypatch) -> None:
@@ -64,6 +72,27 @@ def test_analysis_returns_multiple_segmented_items(monkeypatch) -> None:
                 "bounding_box": {"left": 5, "top": 1, "width": 2, "height": 2},
                 "mask": {"encoding": "rle", "size": [4, 8], "counts": [13, 2, 17]},
             },
+        ],
+        "people": [
+            {
+                "id": "person_1",
+                "confidence": 0.97,
+                "bounding_box": {"left": 0, "top": 0, "width": 8, "height": 4},
+                "items": [
+                    {
+                        "label": "jacket",
+                        "confidence": 0.91,
+                        "bounding_box": {"left": 1, "top": 0, "width": 3, "height": 4},
+                        "mask": {"encoding": "rle", "size": [4, 8], "counts": [1, 3, 28]},
+                    },
+                    {
+                        "label": "bag",
+                        "confidence": 0.74,
+                        "bounding_box": {"left": 5, "top": 1, "width": 2, "height": 2},
+                        "mask": {"encoding": "rle", "size": [4, 8], "counts": [13, 2, 17]},
+                    },
+                ],
+            }
         ],
         "thresholds": {"detection": 0.3, "text": 0.25},
     }

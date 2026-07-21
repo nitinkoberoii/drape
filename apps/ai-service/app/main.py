@@ -20,7 +20,7 @@ def health_check() -> HealthResponse:
     return HealthResponse(status="ok")
 
 
-@app.post("/analyze", response_model=AnalysisResponse)
+@app.post("/analyze", response_model=AnalysisResponse, response_model_exclude_none=True)
 def analyze_frame(request: AnalysisRequest) -> AnalysisResponse:
     """Detect and segment every supported clothing item in one captured frame."""
     image = decode_image_data_url(request.image_data_url)
@@ -36,4 +36,11 @@ def analyze_frame(request: AnalysisRequest) -> AnalysisResponse:
             else settings.text_confidence_threshold
         ),
     )
-    return AnalysisResponse(items=get_inference().analyze(image, thresholds=thresholds), thresholds=thresholds)
+    people = get_inference().analyze(
+        image, thresholds=thresholds, include_debug_visuals=request.include_debug_visuals
+    )
+    return AnalysisResponse(
+        people=people,
+        items=[item for person in people for item in person.items],
+        thresholds=thresholds,
+    )
